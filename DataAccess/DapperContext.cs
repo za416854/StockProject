@@ -26,6 +26,8 @@ public class DapperContext
         _configuration = configuration;
 
         string? encryptString = _configuration.GetConnectionString("DefaultConnection");
+
+        _connectionString = encryptString;
     }
 
     /// <summary>

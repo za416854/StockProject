@@ -8,8 +8,7 @@ using System.Text;
 //using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens; 
 using DataAccess;
-using StockWebDotnetEight.Services.TaiwanStock;
-using StockWebDotnetEight.Services;
+using StockWebDotnetEight.Services; 
 using DataAccess.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +16,16 @@ var builder = WebApplication.CreateBuilder(args);
 // 使用能存取HttpContext的物件
 builder.Services.AddHttpContextAccessor();
 
+// 註冊Log4Net
+builder.Services.AddLogging(cfg =>
+{
+    cfg.AddLog4Net(new Log4NetProviderOptions()
+    {
+        Log4NetConfigFileName = "Config/log4net.config",
+        Watch = true
+    });
+
+});
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -38,7 +47,21 @@ builder.Services.AddScoped<IDailyTaiwanStockService, DailyTaiwanStockService>();
 builder.Services.AddControllers().AddNewtonsoftJson();
 
 
-var app = builder.Build();  
+var app = builder.Build();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    log4net.GlobalContext.Properties["Env"] = "SIT";
+}
+else if (app.Environment.IsStaging())
+{
+    log4net.GlobalContext.Properties["Env"] = "UAT";
+}
+else if (app.Environment.IsProduction())
+{
+    log4net.GlobalContext.Properties["Env"] = "PRD";
+}
 app.UseCors(builder =>
 {
     builder.AllowAnyOrigin()

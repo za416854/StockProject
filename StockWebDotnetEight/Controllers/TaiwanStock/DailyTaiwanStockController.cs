@@ -1,12 +1,14 @@
+using Domain.Dtos;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using StockWebDotnetEight.Services;
-using StockWebDotnetEight.Services.TaiwanStock;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace StockWebDotnetEight.Controllers.TaiwanStock;
+
 [Route("api/[controller]")]
 [ApiController]
 public class DailyTaiwanStockController : BaseControllerStock
@@ -20,7 +22,10 @@ public class DailyTaiwanStockController : BaseControllerStock
         this._dailyTaiwanStockSvc = dailyTaiwanStockService;
         this._commonSvc = commonService;
     }
-
+    /// <summary>
+    /// 例子
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     [Route(nameof(TestGet))]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -40,8 +45,11 @@ public class DailyTaiwanStockController : BaseControllerStock
             return StatusCode(StatusCodes.Status500InternalServerError, "Internal Server Error");
         }
     }
-
-    [HttpPost(Name = nameof(TaiwanStockPost))] 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet(Name = nameof(TaiwanStockPost))] 
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> TaiwanStockPost()
     {
@@ -52,13 +60,49 @@ public class DailyTaiwanStockController : BaseControllerStock
             {
                   return NotFound();
             }
-            return Ok(queryResult);
+            var resBody = queryResult.Content.ReadAsStringAsync();
+            return Ok(resBody);
         }
         catch (Exception ex)
         {
+            // 寫一筆LOG進去DB
 
             throw;
         }
     }
+    /// <summary>
+    /// 新增股票資料
+    /// </summary>
+    /// <param name="model">資料模型</param>
+    /// <response code="200">新增成功</response>
+	/// <response code="406">相同股票資料已存在</response>
+    [HttpPost(Name = nameof(InsertDailyStock))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status406NotAcceptable)]
+    public ActionResult<CommonResponseDto<DailyTaiwanStockEnt>> InsertDailyStock(DailyTaiwanStockDto model)
+    {
+        // 檢查是否資料重複
+        //int queryCount = _accountReceiptSvc.IsBankAccountExist(model);
 
+        //if (queryCount > 0)
+        //{
+        //    return CommonResponseError(StatusCodes.Status406NotAcceptable, ERROR_CODES.ErrorKeyDuplicate, "相同股票資料已存在");
+        //}
+
+        int tmrKey = _dailyTaiwanStockSvc.InsertDailyStock(model);
+
+        if (tmrKey == 0)
+        {
+            //this.WriteUserAuditLog(this._commonSvc, ACTION_TYPES.Insert, $"TMR_Key={tmrKey}");
+
+            // 取得新增後的資料
+            var newItem = _dailyTaiwanStockSvc.GetInsertStockByKey(model.StockSymbol);
+
+            return CommonResponse(newItem);
+        }
+        else
+        {
+            return CommonResponseDBError();
+        }
+    }
 }
