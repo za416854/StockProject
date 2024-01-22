@@ -73,7 +73,7 @@ public class BaseControllerStock : ControllerBase
     /// <param name="extraMsg">額外訊息</param>
     protected ActionResult<CommonResponseDto<string>> CommonResponseDelete(int selectedItem, int success, int failed, string extraMsg = "")
     {
-        string returnMsg = string.Format("勾選{0}筆：{1}筆成功，{2}筆失敗。{3}", selectedItem, success, failed, extraMsg);
+        string returnMsg = "";
 
 
         return StatusCode(StatusCodes.Status200OK, new CommonResponseDto<string>()
