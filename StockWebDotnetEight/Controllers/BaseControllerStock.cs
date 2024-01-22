@@ -67,13 +67,13 @@ public class BaseControllerStock : ControllerBase
     /// <summary>
     /// 共用刪除回覆訊息
     /// </summary>
-    /// <param name="select">勾選筆數</param>
+    /// <param name="selectedItem">勾選筆數</param>
     /// <param name="success">成功筆數</param>
     /// <param name="failed">失敗筆數</param>
     /// <param name="extraMsg">額外訊息</param>
-    protected ActionResult<CommonResponseDto<string>> CommonResponseDelete(int select, int success, int failed, string extraMsg = "")
+    protected ActionResult<CommonResponseDto<string>> CommonResponseDelete(int selectedItem, int success, int failed, string extraMsg = "")
     {
-        string returnMsg = string.Format("勾選{0}筆：{1}筆成功，{2}筆失敗。{3}", select, success, failed, extraMsg);
+        string returnMsg = string.Format("勾選{0}筆：{1}筆成功，{2}筆失敗。{3}", selectedItem, success, failed, extraMsg);
 
 
         return StatusCode(StatusCodes.Status200OK, new CommonResponseDto<string>()
